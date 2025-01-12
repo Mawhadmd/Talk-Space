@@ -16,7 +16,7 @@ const NavBar = () => {
               <Link
                 to={{ pathname: item.path }}
                 key={item.name}
-                className="hover:bg-white hover:text-black 0 rounded-full cursor-pointer transition-all p-2"
+                className="hover:bg-white hover:text-black  text-white 0 rounded-full cursor-pointer transition-all p-2"
               >
                 {item.name}
               </Link>

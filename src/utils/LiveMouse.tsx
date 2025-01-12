@@ -11,6 +11,7 @@ const LiveMouse = () => {
     if (!socket) return;
     socket.emit("livemouse", pos);
   }, 5);
+  
   const throttledmovements = useThrottle((e: MouseEvent | null) => {
     if (!e) return;
     // console.log(e.clientX, e.clientY, e.eventPhase);
@@ -56,6 +57,7 @@ const LiveMouse = () => {
 
   useEffect(() => {
     const newSocket = cliensocket("http://localhost:3000");
+    console.log(newSocket);
     setSocket(newSocket);
 
     return () => {

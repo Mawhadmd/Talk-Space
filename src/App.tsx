@@ -1,15 +1,12 @@
-import { useState } from "react";
 import "./App.css";
 
-
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import About from "./routes/Home/About";
 import Hero from "./routes/Home/Hero";
-import { createContext } from "react";
-
-import CallRoom from "./routes/Calling room/CallRoom";
+import { createContext, useState } from "react";
 import LiveMouse from "./utils/LiveMouse";
-import NavBar from "./NavBar";
+import WaitingRoom from "./routes/Calling room/WaitingRoom";
+import { AnimatePresence, motion } from "motion/react";
 
 interface AppContextType {
   Generatenewroomid: () => void;
@@ -20,62 +17,58 @@ interface AppContextType {
 export const AppContext = createContext<AppContextType>({} as AppContextType);
 
 function App() {
-  const [roomid, setRoomid] = useState("");
+  const [newAlerts, setAlerts] = useState<Map<string, string>>(new Map());
 
-
-  const Generatenewroomid = () => {
-    let roomId = Math.random().toString(36).substring(7);
-    while (roomId.length < 6) {
-      roomId = Math.random().toString(36).substring(7);
-    }
-    setRoomid(roomId);
-  };
-
-  const Setnewroomid = async () => {
-    if (roomid.length < 6) {
-      alert("Room id is not valid");
-      return;
-    }
-
-    let idjson = await fetch(`http://localhost:3000/CheckAndEnterRoom/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ roomid: roomid }),
+  const showAlert = (message: string) => {
+    let randkey = message + Math.random() * 2000;
+    setAlerts((prev) => {
+      let map = new Map(prev);
+      map.set(randkey, message);
+      return map;
     });
-    let status = idjson.status;
-    let response = await idjson.text();
-
-    console.log(status, response);
-    alert(status + " " + response);
+    setTimeout(() => {
+      setAlerts((prev) => {
+        let map = new Map(prev);
+        map.delete(randkey);
+        return map;
+      });
+    }, 3000);
   };
-
-
 
   return (
     <>
+      <AnimatePresence>
+        {Array.from(newAlerts.entries()).map(([key, value],i) => (
+          <motion.div
+            key={key}
+            initial={{ y: -100  }}
+            animate={{ y: 0 + (55*i)}}
+            exit={{ y: -100 }}
+            className="flex z-50 items-center text-white font-extrabold justify-center w-[400px] h-[50px] fixed top-[50px] left-0 right-0 text-center mx-auto min-w-fit bg-black border-yellow-500 border-2 border-solid rounded-md "
+          >
+            {value}
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
-    <LiveMouse/>
-    <AppContext.Provider
-      value={{ Generatenewroomid, Setnewroomid, roomid, setRoomid }}
-    >
-      <>
-        <BrowserRouter>
-        <NavBar/>
-          <div className="h-full w-full">
-            <Routes>
-              <Route path="/" element={<Hero />}>
-                <Route path="/About" element={<About />} />
-                <Route path="/motive" element={"Coming Soon"} />
-                <Route path="*" element={<div>doesn't exists 404</div>} />
-              </Route>
-              <Route path="/GettingReady/:id" element={<CallRoom />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
-      </>
-    </AppContext.Provider></>
+      <LiveMouse />
+
+      <BrowserRouter>
+        <div className="h-full w-full">
+          <Routes>
+            <Route path="/" element={<Hero showAlert={showAlert} />}>
+              <Route path="/About" element={<About />} />
+              <Route path="/motive" element={"Coming Soon"} />
+              <Route path="*" element={<div>doesn't exists 404</div>} />
+            </Route>
+            <Route
+              path="/GettingReady/:id"
+              element={<WaitingRoom showAlert={showAlert} />}
+            />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </>
   );
 }
 
