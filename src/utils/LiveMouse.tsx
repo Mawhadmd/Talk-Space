@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useThrottle } from "./UseThrottle";
-import cliensocket, { Socket } from "socket.io-client";
+import { AppContext } from "../App";
 
 const LiveMouse = () => {
+
   const [pos, setpos] = useState({ x: 0, y: 0, hide: false });
   const [usermousearray, setusermousearray] = useState([]);
-  const [socket, setSocket] = useState<Socket>();
-
+  const {MainSocket: socket} = useContext(AppContext)
   const throttlesendingtoserver = useThrottle(() => {
     if (!socket) return;
     socket.emit("livemouse", pos);
@@ -41,7 +41,7 @@ const LiveMouse = () => {
     });
 
     socket.on("livemouse", (data11) => {
-      console.log(data11);
+ 
       setusermousearray(data11);
     });
 
@@ -55,15 +55,6 @@ const LiveMouse = () => {
     throttlesendingtoserver(null);
   }, [pos, socket]);
 
-  useEffect(() => {
-    const newSocket = cliensocket("http://localhost:3000");
-    console.log(newSocket);
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close(); // Cleanup on component unmount
-    };
-  }, []);
 
   return (
     <>

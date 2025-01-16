@@ -3,6 +3,7 @@ import image from "../../assets/Backgroundforzoomapp.png";
 import { Outlet, useNavigate, useOutlet } from "react-router-dom";
 
 import NavBar from "../../NavBar";
+import LiveMouse from "../../utils/LiveMouse";
 
 
 const Hero = ({showAlert}:{showAlert: (message:string)=>void}) => {
@@ -26,22 +27,23 @@ const Hero = ({showAlert}:{showAlert: (message:string)=>void}) => {
       showAlert("Room id is not valid");
       return;
     } else {
-      showAlert("Now Creating the room");
-
+      showAlert("Now Creating/Joining the room");
       setTimeout(() => {
         navigate(`/GettingReady/${roomid}`);
-      }, 1000);
+      }, 500);
       
     }
   };
-
+  const hascurser = () =>
+    document.body.clientWidth > 500 ||
+    window.matchMedia("(pointer:fine)").matches;
   return (
     <>
-  
+         {hascurser() ? <LiveMouse /> : ""}
       <NavBar />
       <div
         id="Hero"
-        className="w-screen max-h-screen  text-black   h-full flex justify-around items-center "
+        className="w-screen max-h-screen  text-black   h-screen flex justify-around items-center "
       >
         {!thereoutlet ? (
           <>
