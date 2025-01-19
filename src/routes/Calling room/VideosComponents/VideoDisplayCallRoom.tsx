@@ -2,8 +2,8 @@ import { useContext, useRef, useState } from "react";
 import { useEffect } from "react";
 import { MediapreferenceContext } from "../../../App";
 
-const VideoDisplayCallRoom = () => {
-  const [videoStream, setvideoStream] = useState<MediaStream>(); //2 means room exists, 1 means room has been created
+const VideoDisplayCallRoom = ({localStream}:{localStream: MediaStream | undefined}) => {
+
   const { Audio_Toggle, Video_Toggle, SetVideoToggle, SetAudioToggle } =
     useContext(MediapreferenceContext);
 
@@ -11,44 +11,36 @@ const VideoDisplayCallRoom = () => {
   const audioElement = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    var stream: MediaStream;
+    if(!localStream) return
     if (Video_Toggle || Audio_Toggle) {
-      navigator.mediaDevices
-        .getUserMedia({ video: Video_Toggle, audio: Audio_Toggle })
-        .then((userStream) => {
-          stream = userStream;
-          setvideoStream(stream); // Store the stream in state
+   
           if (videoElement.current) {
-            videoElement.current.srcObject = stream; // Assign the entire stream to srcObject
+            videoElement.current.srcObject = localStream; // Assign the entire stream to srcObject
             videoElement.current.muted = true;
             videoElement.current.play(); // Start playing the video
           }
           if (audioElement.current) {
-            audioElement.current.srcObject = stream;
+            audioElement.current.srcObject = localStream;
             audioElement.current.muted = true;
             audioElement.current.play();
           }
-          console.log(stream);
-        })
-        .catch((error) => {
-          console.error("Error accessing media devices:", error);
-        });
+          console.log(localStream);
+  
 
       // Cleanup function to stop the media tracks when the component unmounts or dependencies change
       return () => {
-        if (stream) {
-          const tracks = stream.getTracks();
-          tracks.forEach((track) => track.stop()); // Stop each track
-          if (videoElement.current) {
-            videoElement.current.srcObject = null; // Reset the srcObject to null
-          }
-          if (audioElement.current) {
-            audioElement.current.srcObject = null; // Reset the srcObject to null
-          }
-        }
+
+
+    if (videoElement.current) {
+      videoElement.current.srcObject = null; // Reset the srcObject to null
+    }
+    if (audioElement.current) {
+      audioElement.current.srcObject = null; // Reset the srcObject to null
+    }
+
       };
     }
-  }, [Audio_Toggle, Video_Toggle]);
+  }, [localStream]);
 
   return (
     <div className="z-50 absolute bottom-0 m-4 right-0 flex  flex-col  justify-center gap-5 items-center">
@@ -72,7 +64,7 @@ const VideoDisplayCallRoom = () => {
               ref={videoElement}
               className={`w-full h-full object-cover ${Video_Toggle? 'block': 'hidden'}`}
             ></video>
-        {videoStream && Video_Toggle ? (
+        {localStream?.getVideoTracks().length && Video_Toggle ? (
           <>
         
           </>

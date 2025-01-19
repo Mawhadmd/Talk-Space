@@ -45,21 +45,21 @@ const WaitingRoom = () => {
     };
   }, [id,MainSocket]);
 
-  function handlejoinrequest(){
-    if(RoomStatus != 2) return
-    setRoomStatus(3)
-    setTimeout(() => {
-      console.log('Ignored')
-      setRoomStatus(2)
+  function handlejoinrequest() {
+    if (RoomStatus != 2) return;
+    setRoomStatus(3);
+    const timeoutId = setTimeout(() => {
+      console.log('Ignored');
+      setRoomStatus(2);
     }, 10000);
-    MainSocket?.emit('RequestAccess',id)
-    MainSocket?.on('Accepted',()=>{
-      MainSocket.emit('joinroom',id)
-      
+    MainSocket?.emit('RequestAccess', id);
+    MainSocket?.on('Accepted', () => {
+      clearTimeout(timeoutId);
+      MainSocket.emit('joinroom', id);
       setTimeout(() => {
-        navigate(`/InCall/${id}`)
+        navigate(`/InCall/${id}`);
       }, 222);
-    })
+    });
   }
   
   return (

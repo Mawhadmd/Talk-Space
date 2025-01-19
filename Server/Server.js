@@ -25,16 +25,32 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.username = "User" + "-" + randomInt(1000000000); //Immutable, can be an id
-
+socket.on('getname',(callback)=>{
+callback(socket.username)
+})
   socket.on("Authorized", (roomid, callback) => {
     if (socket.rooms.has(roomid)) callback("Yes");
     else callback("No");
   });
 
   socket.on("peersignal", (peerid, roomid) => {
-    socket.broadcast.to(roomid).emit("peersignal", peerid);
+    console.log(peerid, roomid);
+      setTimeout(() => {
+        socket.broadcast.to(roomid).emit("peersignal", peerid);
+      }, 1000);
+ 
   });
-
+  socket.on("Howmanypeopleintheroom", (roomid, callback) => {
+    let PeopleInTheRoom = io.sockets.adapter.rooms.get(roomid);
+    if (PeopleInTheRoom) {
+      let otherPeople = [...PeopleInTheRoom]
+        .filter(id => id !== socket.id)
+        .map(id => io.sockets.sockets.get(id).username);
+      callback(otherPeople);
+    } else {
+      callback([]);
+    }
+  });
   socket.on("RoomCreation", (roomid, callback) => {
     if (socket.rooms.size > 2) {
       socket.rooms.forEach((room) => {
@@ -48,13 +64,13 @@ io.on("connection", (socket) => {
         callback("Room Found, Click join when ready", 2);
       } else {
         socket.join(roomid);
+
         callback("Room created successfully!", 1);
       }
     } catch (e) {
       console.log(e);
     }
   });
-
   socket.on("RequestAccess", (roomid) => {
     if (io.sockets.adapter.rooms.has(roomid)) {
       console.log("requesting access " + socket.id);
@@ -63,17 +79,30 @@ io.on("connection", (socket) => {
         .emit(roomid + "req", { name: socket.username, id: socket.id });
     } else console.log("room was not found");
   });
+
   socket.on("joinroom", (roomid) => {
     socket.join(roomid);
+    socket.to(roomid).emit("user_gotin", socket.username);
   });
+
   socket.on(`letThisGuyin`, (candidateid) => {
     socket.broadcast.to(candidateid).emit("Accepted");
   });
-
+  socket.on(`ToggledMedia`, (roomid,peerid) => {
+    socket.broadcast.to(roomid).emit('ToggledMedia',peerid )
+  });
   socket.on("disconnect", () => {
     usersonscreen.delete(socket.id);
     socket.broadcast.emit("livemouse", Array.from(usersonscreen.values()));
+
     console.log("user disconnected");
+  });
+  socket.on("disconnecting", (reason) => {
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.to(room).emit("user_left", socket.username);
+      }
+    }
   });
 
   socket.on("livemouse", (msg) => {
@@ -82,6 +111,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+server.listen(port, "0.0.0.0", () => {
+  console.log(`Server is running on http://0.0.0.0:${port}`);
 });

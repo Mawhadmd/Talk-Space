@@ -12,6 +12,7 @@ import cliensocket, { Socket } from "socket.io-client";
 interface AppContext {
   MainSocket?: Socket;
   showAlert: (message: string) => void;
+  name: string
 }
 
 export const AppContext = createContext<AppContext>({} as AppContext);
@@ -21,11 +22,14 @@ function App() {
   const [newAlerts, setAlerts] = useState<Map<string, string>>(new Map());
   const [MainSocket, setMainSocket] = useState<Socket>();
   const [Video_Toggle, SetVideoToggle] = useState<boolean>(false);
-
+  const [name,setname] = useState('')
   const [Audio_Toggle, SetAudioToggle] = useState<boolean>(false);
   useEffect(() => {
-    const MainSocket = cliensocket("http://localhost:3000");
+    const MainSocket = cliensocket("http://192.168.8.53:3000");
     setMainSocket(MainSocket);
+    MainSocket.emit('getname',(name: string)=>{
+      setname(name)
+    })
     return () => {
       MainSocket.disconnect();
     };
@@ -54,7 +58,7 @@ function App() {
 SetVideoToggle,
 Audio_Toggle,
 SetAudioToggle}}>
-      <AppContext.Provider value={{ MainSocket, showAlert }}>
+      <AppContext.Provider value={{ MainSocket, showAlert, name }}>
         <AnimatePresence>
           {Array.from(newAlerts.entries()).map(([key, value], i) => (
             <motion.div

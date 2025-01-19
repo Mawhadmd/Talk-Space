@@ -49,7 +49,7 @@ const Hero = ({showAlert}:{showAlert: (message:string)=>void}) => {
           <>
             <div className="lg:ml-10 content-center">
               <div className=" text-5xl font-bold">
-                Tired of Niggers? <br></br>Call 911
+                Need to Connect? <br></br>Hop on a Call!
               </div>
               <div>
                 Generate a new code or write existing one to{" "}
