@@ -4,7 +4,7 @@ import { AppContext, MediapreferenceContext } from "../../App";
 import VideoDisplayCallRoom from "./VideosComponents/VideoDisplayCallRoom";
 import { useNavigate, useParams } from "react-router-dom";
 import Peer, { MediaConnection } from "peerjs";
-import { AnimatePresence, motion } from "motion/react";
+import { EntryRequestNotification } from "./EntryRequestNotification";
 
 const CallRoom = () => {
   const { MainSocket, showAlert, name } = useContext(AppContext);
@@ -32,7 +32,7 @@ const CallRoom = () => {
   useEffect(() => {
     //if video or audio is off then return
     if (!Audio_Toggle && !Video_Toggle) {
-      setlocalStream(new MediaStream())
+      setlocalStream(new MediaStream());
       return;
     }
     var stream: MediaStream;
@@ -72,7 +72,9 @@ const CallRoom = () => {
         }
         console.log("stream received", arrayofstreams);
         setarrayofstreams((prev) => {
-          const existingPeerIndex = prev.findIndex((p) => p.peer === call.peer || call.metadata.name == p.name);
+          const existingPeerIndex = prev.findIndex(
+            (p) => p.peer === call.peer || call.metadata.name == p.name
+          );
           if (existingPeerIndex !== -1) {
             const updatedStreams = [...prev];
             updatedStreams[existingPeerIndex] = {
@@ -133,7 +135,7 @@ const CallRoom = () => {
           console.error("Peer instance not initialized");
           return;
         }
-        console.log('calling with an empty Stream')
+        console.log("calling with an empty Stream");
         call = peerinstance.current.call(remotePeerId, new MediaStream(), {
           metadata: { name: name },
         });
@@ -156,7 +158,7 @@ const CallRoom = () => {
       setarrayofstreams((prev) => {
         return prev.map((p) => {
           if (peerid === p.peer) {
-        return { ...p, stream: new MediaStream() };
+            return { ...p, stream: new MediaStream() };
           }
           return p;
         });
@@ -178,38 +180,40 @@ const CallRoom = () => {
     if (!MainSocket || !peerid || !id) return;
 
     const debounceEmit = setTimeout(() => {
-      showAlert("sending signal");
+      console.log("sending signal");
       MainSocket.emit("peersignal", peerid, id);
     }, 1000); // Adjust the debounce delay as needed
-
     return () => clearTimeout(debounceEmit);
   }, [MainSocket, toggleroomchange, peerid, id]);
-  useEffect(() => {
-    if(!MainSocket) return
-    MainSocket.emit('Howmanypeopleintheroom',id,(people_in_this_room:string[])=>{
-      let people:any[] = []
-      people_in_this_room.forEach((name)=>{
-        people.push({stream: new MediaStream(), name: name})
-      })
-      setarrayofstreams(people)
 
-    })
-    return () => {
-      
-    };
+  useEffect(() => {
+    if (!MainSocket) return;
+    MainSocket.emit(
+      "Howmanypeopleintheroom",
+      id,
+      (people_in_this_room: string[]) => {
+        let people: any[] = [];
+        people_in_this_room.forEach((name) => {
+          people.push({ stream: new MediaStream(), name: name });
+        });
+        setarrayofstreams(people);
+      }
+    );
+    return () => {};
   }, [MainSocket]);
+
   useEffect(() => {
     if (!MainSocket) return;
     MainSocket?.on("user_gotin", (username: string) => {
       showAlert(username + " has entered");
       settoggleroomchange((prev) => !prev);
-    setarrayofstreams((prev) => [
-      ...prev,
-      {
-        stream: new MediaStream(),
-        name: username,
-      },
-    ]);
+      setarrayofstreams((prev) => [
+        ...prev,
+        {
+          stream: new MediaStream(),
+          name: username,
+        },
+      ]);
     });
     MainSocket?.on("user_left", (username) => {
       showAlert(username + " has left");
@@ -264,10 +268,13 @@ const CallRoom = () => {
 
   return (
     <>
-      <div>{id + " " + peerid + " "}</div>
+      <EntryRequestNotification
+        handleaccept={handleaccept}
+        entryRequest={entryRequest}
+      />
 
       <div className=" h-full p-2 flex flex-wrap  ">
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap w-full lg:w-[60%]">
           {arrayofstreams.map((stream, index) => {
             const peername = stream.name;
             const videoTrack = stream.stream.getVideoTracks()[0];
@@ -311,29 +318,6 @@ const CallRoom = () => {
             );
           })}
         </div>
-
-        <AnimatePresence>
-          {entryRequest &&
-            Array.from(entryRequest.values()).map(
-              (e: { id: string; name: string }, i) => (
-                <motion.div
-                  initial={{ y: 100 * i, x: 300, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 300, opacity: 0 }}
-                  key={e.id} // Key prop should be on the motion.div
-                  className="w-[300px] h-20 flex top-0 right-0 m-1 justify-center text-white items-center p-4 bg-black rounded-full fixed"
-                >
-                  <p>{e.name} wants to connect (Ignore to refuse)</p>
-                  <button
-                    onClick={() => handleaccept(e.id)}
-                    className="bg-white text-black font-semibold whitespace-nowrap p-1 rounded-md"
-                  >
-                    Let in
-                  </button>
-                </motion.div>
-              )
-            )}
-        </AnimatePresence>
       </div>
       {localStream && <VideoDisplayCallRoom localStream={localStream} />}
     </>

@@ -64,7 +64,7 @@ const WaitingRoom = () => {
   
   return (
     <>
-      <div>{MainSocket && MainSocket.id}</div>
+
     <div className=" h-screen flex justify-center items-center w-full">
       <div className="absolute top-0 left-0 m-2 flex flex-col gap-2">
         <Link
