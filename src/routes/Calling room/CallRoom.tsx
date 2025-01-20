@@ -5,6 +5,7 @@ import VideoDisplayCallRoom from "./VideosComponents/VideoDisplayCallRoom";
 import { useNavigate, useParams } from "react-router-dom";
 import Peer, { MediaConnection } from "peerjs";
 import { EntryRequestNotification } from "./EntryRequestNotification";
+import { ChatBox } from "./ChatBox";
 
 const CallRoom = () => {
   const { MainSocket, showAlert, name } = useContext(AppContext);
@@ -107,7 +108,7 @@ const CallRoom = () => {
 
   //Make a call
   useEffect(() => {
-    if (!peerid || !MainSocket || !localStream) return;
+    if (!peerid || !localStream) return;
 
     var call: MediaConnection;
     const handlePeerSignal = async (remotePeerId: string) => {
@@ -151,7 +152,6 @@ const CallRoom = () => {
   }, [peerid, MainSocket, id, localStream]);
 
   useEffect(() => {
-    if (!MainSocket) return;
     MainSocket.on("ToggledMedia", (peerid) => {
       settoggleroomchange((prev) => !prev);
       console.log("someone toggled their media");
@@ -177,17 +177,16 @@ const CallRoom = () => {
   }, [localStream, id, peerid]); //tells the others if video or audio toggles here
 
   useEffect(() => {
-    if (!MainSocket || !peerid || !id) return;
+    if (!peerid || !id) return;
 
     const debounceEmit = setTimeout(() => {
       console.log("sending signal");
       MainSocket.emit("peersignal", peerid, id);
     }, 1000); // Adjust the debounce delay as needed
     return () => clearTimeout(debounceEmit);
-  }, [MainSocket, toggleroomchange, peerid, id]);
+  }, [toggleroomchange, peerid, id]);
 
   useEffect(() => {
-    if (!MainSocket) return;
     MainSocket.emit(
       "Howmanypeopleintheroom",
       id,
@@ -203,7 +202,6 @@ const CallRoom = () => {
   }, [MainSocket]);
 
   useEffect(() => {
-    if (!MainSocket) return;
     MainSocket?.on("user_gotin", (username: string) => {
       showAlert(username + " has entered");
       settoggleroomchange((prev) => !prev);
@@ -227,9 +225,7 @@ const CallRoom = () => {
   }, [MainSocket]);
 
   useEffect(() => {
-    if (!MainSocket) return;
-
-    MainSocket?.emit("Authorized", id, (Response: string) => {
+    MainSocket.emit("Authorized", id, (Response: string) => {
       if (Response == "No") {
         navigate(`/GettingReady/${id}`);
       }
@@ -274,7 +270,7 @@ const CallRoom = () => {
       />
 
       <div className=" h-full p-2 flex flex-wrap  ">
-        <div className="flex flex-wrap w-full lg:w-[60%]">
+        <div className="flex flex-wrap w-full lg:w-[80%] mr-auto">
           {arrayofstreams.map((stream, index) => {
             const peername = stream.name;
             const videoTrack = stream.stream.getVideoTracks()[0];
@@ -319,9 +315,27 @@ const CallRoom = () => {
           })}
         </div>
       </div>
-      {localStream && <VideoDisplayCallRoom localStream={localStream} />}
+      <div className="h-full absolute bottom-0 m-4 right-0 flex  flex-col  justify-center gap-5 items-center">
+        <div className="border-neutral-700 border-2 mt-10 h-full w-full flex flex-col">
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              showAlert("Link copied to clipboard");
+            }}
+            className="m-3 text-2xl  bg-green-600 rounded-lg w-fit p-3 mx-auto hover:bg-green-500"
+          >
+            Invite People
+          </button>
+          <>
+            {id && <ChatBox MainSocket={MainSocket} roomid={id} />}
+          </>
+        </div>
+        {localStream && <VideoDisplayCallRoom localStream={localStream} />}
+      </div>
     </>
   );
 };
+
+
 
 export default CallRoom;

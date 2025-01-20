@@ -12,7 +12,7 @@ export const EntryRequestNotification = ({handleaccept,entryRequest}: {handleacc
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 300, opacity: 0 }}
                     key={e.id} // Key prop should be on the motion.div
-                    className="w-[300px] h-20 flex top-0 right-0 m-1 justify-center text-white items-center p-4 bg-black rounded-full fixed"
+                    className="z-[999] w-[300px] h-20 flex top-0 right-0 m-1 justify-center text-white items-center p-4 bg-black rounded-full fixed"
                   >
                     <p>{e.name} wants to connect (Ignore to refuse)</p>
                     <button

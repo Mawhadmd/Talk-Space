@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import { useEffect } from "react";
 import { MediapreferenceContext } from "../../../App";
 
@@ -43,16 +43,16 @@ const VideoDisplayCallRoom = ({localStream}:{localStream: MediaStream | undefine
   }, [localStream]);
 
   return (
-    <div className="z-50 absolute bottom-0 m-4 right-0 flex  flex-col  justify-center gap-5 items-center">
-      <div className="justify-center items-center flex flex-row gap-2  h-full">
+    <div className="h-52 flex  flex-col  justify-center gap-5 items-center">
+      <div className="justify-center items-center flex flex-row gap-2  ">
         <button
-          className="p-2 w-32 bg-violet-600 transition-all rounded-md h-full text-white font-semibold  hover:bg-violet-400"
+          className="p-2 w-32 whitespace-nowrap  h-10 bg-violet-600 transition-all rounded-md text-white font-semibold  hover:bg-violet-400"
           onClick={() => SetVideoToggle(!Video_Toggle)}
         >
           {Video_Toggle ? "Disable Video" : "Enable Video"}
         </button>
         <button
-          className="p-2 bg-violet-600 transition-all w-32 rounded-md h-full  text-white font-semibold  hover:bg-violet-400"
+          className="p-2 h-10 whitespace-nowrap bg-violet-600 transition-all w-32 rounded-md  text-white font-semibold  hover:bg-violet-400"
           onClick={() => SetAudioToggle(!Audio_Toggle)}
         >
           {Audio_Toggle ? "Disable Audio" : "Enable Audio"}
