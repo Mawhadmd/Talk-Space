@@ -269,8 +269,8 @@ const CallRoom = () => {
         entryRequest={entryRequest}
       />
 
-      <div className=" h-full p-2 flex flex-wrap  ">
-        <div className="flex flex-wrap w-full lg:w-[80%] mr-auto">
+      <div className="min-h-screen w-full bg-gradient-to-br from-white via-yellow-50 to-red-100 flex flex-col lg:flex-row items-start justify-center p-4 relative">
+        <div className="flex flex-wrap w-full lg:w-[80%] gap-4 justify-center items-start">
           {arrayofstreams.map((stream, index) => {
             const peername = stream.name;
             const videoTrack = stream.stream.getVideoTracks()[0];
@@ -281,15 +281,16 @@ const CallRoom = () => {
             return (
               <div
                 key={index}
-                className="relative border-2 w-[300px] h-[300px]"
+                className="relative border border-yellow-300 rounded-lg w-[280px] h-[220px] bg-white/80 shadow-sm overflow-hidden flex items-center justify-center"
               >
                 {!videoEnabled && !audioEnabled ? (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
-                    {peername} is not sharing media
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-yellow-700 text-base font-semibold">
+                    <span className="mb-1">{peername}</span>
+                    <span>is not sharing media</span>
                   </div>
                 ) : videoEnabled ? (
                   <video
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-lg border-none"
                     autoPlay
                     playsInline
                     ref={(video) => {
@@ -299,14 +300,17 @@ const CallRoom = () => {
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
-                    {audioEnabled
-                      ? `${peername} Mic is on`
-                      : "This user does not share media"}
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-yellow-700 text-base font-semibold">
+                    <span className="mb-1">{peername}</span>
+                    <span>
+                      {audioEnabled
+                        ? `Mic is on`
+                        : "This user does not share media"}
+                    </span>
                   </div>
                 )}
                 {videoEnabled && !audioEnabled && (
-                  <div className="absolute bottom-0 left-0 bg-black text-white p-1">
+                  <div className="absolute bottom-2 left-2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold shadow-sm">
                     Mic is off
                   </div>
                 )}
@@ -314,28 +318,24 @@ const CallRoom = () => {
             );
           })}
         </div>
-      </div>
-      <div className="h-full absolute bottom-0 m-4 right-0 flex  flex-col  justify-center gap-5 items-center">
-        <div className="border-neutral-700 border-2 mt-10 h-full w-full flex flex-col">
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              showAlert("Link copied to clipboard");
-            }}
-            className="m-3 text-2xl  bg-green-600 rounded-lg w-fit p-3 mx-auto hover:bg-green-500"
-          >
-            Invite People
-          </button>
-          <>
+        <div className="absolute bottom-0 right-0 m-6 flex flex-col gap-4 items-end z-20">
+          <div className="border-yellow-200 border bg-white/90 rounded-lg shadow p-3 flex flex-col items-center w-full max-w-xs">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                showAlert("Link copied to clipboard");
+              }}
+              className="mb-3 text-base bg-gradient-to-r from-green-500 to-yellow-300 rounded w-full p-2 hover:from-green-400 hover:to-yellow-400 text-white font-bold shadow-sm transition-all"
+            >
+              Invite People
+            </button>
             {id && <ChatBox MainSocket={MainSocket} roomid={id} />}
-          </>
+          </div>
+          {localStream && <VideoDisplayCallRoom localStream={localStream} />}
         </div>
-        {localStream && <VideoDisplayCallRoom localStream={localStream} />}
       </div>
     </>
   );
 };
-
-
 
 export default CallRoom;

@@ -14,10 +14,19 @@
 }
 
 #Hero {
-  background: linear-gradient(420deg, white 10%, rgba(255, 0, 0, 0.616) 333%);
+  background-image: url("https://pixelbuddha.net/storage/88510/mnml-branding-stationery-mockup-0.jpg");
+  background-position: center ;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
   cursor: none;
 }
-
+.bebas-neue-regular {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 #root {
   margin: 0 auto;
   height: 100vh;

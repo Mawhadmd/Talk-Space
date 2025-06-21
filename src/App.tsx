@@ -27,17 +27,18 @@ function App() {
   useEffect(() => {
     var MainSocket: Socket;
 
+
     // Check if a socket ID exists in sessionStorage
     const storedSocketId = sessionStorage.getItem("socketid");
     
     if (storedSocketId) {
         // Connect with the stored socket ID
-        MainSocket = cliensocket("http://192.168.8.53:3000", {
+        MainSocket = cliensocket("http://localhost:3000", {
             query: { userId: storedSocketId },
         });
     } else {
         // Create a new connection without a stored ID
-        MainSocket = cliensocket("http://192.168.8.53:3000");
+        MainSocket = cliensocket("http://localhost:3000");
     
         // Wait for the connection to establish
         MainSocket.on("connect", () => {
@@ -109,7 +110,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Hero showAlert={showAlert} />}>
                     <Route path="/About" element={<About />} />
-                    <Route path="/motive" element={"Coming Soon"} />
+                    <Route path="/motive" element={<p className="text-3xl text-white">Coming Soon</p>} />
                     <Route path="*" element={<div>doesn't exists 404</div>} />
                   </Route>
                   <Route path="/GettingReady/:id" element={<WaitingRoom />} />

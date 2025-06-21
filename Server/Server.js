@@ -23,13 +23,16 @@ const io = new WebSocketServer(server, {
 io.use((socket, next) => {
   const userId = socket.handshake.query.userId;
   if (userId) {
-      socket.id = `user_${userId}`;
-    } 
-    next();
+    socket.id = `user_${userId}`;
+  }
+  next();
 });
 
 io.on("connection", (socket) => {
   console.log("a user connected");
+  var socketById = io.sockets.sockets.get(socket.id);
+socketById.emit("livemouse", Array.from(usersonscreen.values()))
+
 
   socket.username = "User" + "-" + randomInt(1000000000); //Immutable, can be an id
   socket.on("getname", (callback) => {
@@ -103,10 +106,9 @@ io.on("connection", (socket) => {
     socket.join(roomid);
     socket.to(roomid).emit("user_gotin", socket.username);
   });
-  socket.on("GetMessages", (roomid,callback)=>{
-    if(MessageMap[roomid])
-    callback(MessageMap[roomid])
-  })
+  socket.on("GetMessages", (roomid, callback) => {
+    if (MessageMap[roomid]) callback(MessageMap[roomid]);
+  });
   socket.on(`letThisGuyin`, (candidateid) => {
     socket.to(candidateid).emit("Accepted");
   });
@@ -119,6 +121,7 @@ io.on("connection", (socket) => {
 
     console.log("user disconnected");
   });
+
   socket.on("disconnecting", (reason) => {
     for (const room of socket.rooms) {
       if (room !== socket.id) {
@@ -129,10 +132,13 @@ io.on("connection", (socket) => {
 
   socket.on("livemouse", (msg) => {
     usersonscreen.set(socket.id, { id: socket.id, ...msg });
+    
     socket.broadcast.emit("livemouse", Array.from(usersonscreen.values()));
   });
+
+  
 });
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`Server is running on http://0.0.0.0:${port}`);
+server.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
