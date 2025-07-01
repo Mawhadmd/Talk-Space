@@ -5,7 +5,7 @@ I was inspired to undertake this project by my previous chat application, Chatty
 
 1. Generate Code and Create a Room
 2. Invite people
-3. People will start joining, and you'll have to select how to get in
+3. People will start joining, and you'll have to select who gets in
 4. You can chat using the chat on the side of the screen
 5. You can disable/enable video or audio.
 6. You can only invite 10 people, or else the server (your machine) will start smoking.
