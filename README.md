@@ -30,9 +30,16 @@ cd ..
 ```
 
 3. Run it
-```
-npm run dev
 
-cd server
-npm run start
-```
+    1. For client
+    ```
+    npm run dev
+    
+    ```
+
+    2. For server (in a new terminal)
+    ```
+    cd server
+    npm run start
+    ```
+
